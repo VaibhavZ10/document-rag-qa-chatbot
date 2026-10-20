@@ -1,0 +1,35 @@
+# POST /ask/stream
+# Purpose: Receive incremental answer text using Server-Sent Events.
+# Frontend caller: frontend/src/hooks/use-chat.ts -> streamQuestion() in frontend/src/lib/api.ts
+# Authorization: None (no bearer token).
+# Session: UUID v4 required; reuse the SAME value for upload and both ask requests.
+# Upload a PDF first using this same session_id. Request JSON is the same as POST /ask.
+# Optional: add "model": "<id from GET /models>" to choose a model.
+# HTTP 200 alone is not success: the stream can emit an error event. Look for done.
+# Live event rendering depends on your HTTP client.
+
+@base_url = http://127.0.0.1:8000
+@session_id = 11111111-2222-4333-8444-555555555555
+
+# Expected response (illustrative mock, not a recorded result):
+# HTTP 200; Content-Type: text/event-stream
+# 
+# event: status
+# data: {"stage":"starting","message":"Pipeline started"}
+# 
+# event: token
+# data: {"content":"Illustrative answer."}
+# 
+# event: done
+# data: {"model_used":"example-model-id","processing_time":1.25,"sources":["1"]}
+
+### POST /ask/stream
+POST {{base_url}}/ask/stream
+Accept: text/event-stream
+Content-Type: application/json
+X-Chat-Session-Id: {{session_id}}
+
+{
+  "question": "Summarize the main points of this document.",
+  "include_sources": true
+}

@@ -1,0 +1,20 @@
+# GET /health
+# Purpose: Check backend availability for the header indicator.
+# Frontend caller: frontend/src/hooks/use-health.ts
+# Authorization: None (no bearer token).
+# No request body or session header. This is not a live probe of AI-provider availability.
+
+@base_url = http://127.0.0.1:8000
+
+# Expected response (illustrative mock, not a recorded result):
+# HTTP 200
+# {
+#   "status": "healthy",
+#   "message": "All systems operational",
+#   "pdf_loaded": false,
+#   "model": "example-model-id"
+# }
+
+### GET /health
+GET {{base_url}}/health
+Accept: application/json

@@ -1,0 +1,32 @@
+# POST /ask
+# Purpose: Get a complete JSON answer about the uploaded PDF.
+# Frontend caller: frontend/src/hooks/use-chat.ts -> frontend/src/lib/api.ts
+# Authorization: None (no bearer token).
+# Session: UUID v4 required; reuse the SAME value for upload and both ask requests.
+# Upload a PDF first using this same session_id. Question length: 1–2000 characters.
+# Optional: add "model": "<id from GET /models>" to the JSON body.
+# Omitting model uses the backend default; provider fallback can change model_used.
+# include_sources is optional and defaults to false.
+
+@base_url = http://127.0.0.1:8000
+@session_id = 11111111-2222-4333-8444-555555555555
+
+# Expected response (illustrative mock, not a recorded result):
+# HTTP 200
+# {
+#   "answer": "Illustrative answer grounded in the uploaded document.",
+#   "model_used": "example-model-id",
+#   "sources": ["1"],
+#   "processing_time": 1.25
+# }
+
+### POST /ask
+POST {{base_url}}/ask
+Accept: application/json
+Content-Type: application/json
+X-Chat-Session-Id: {{session_id}}
+
+{
+  "question": "Summarize the main points of this document.",
+  "include_sources": true
+}
