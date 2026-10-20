@@ -148,8 +148,8 @@ Add `data-scroll-behavior="smooth"` to `<html>` in `src/app/layout.tsx` to suppr
 - Avoid oversized remote media transforms.
 - Do not mark non-critical media as `priority`.
 - Keep graceful fallbacks for media failures.
-- Prefer a reusable safe-image pattern (try optimized first, fallback to native `<img>`).
-- Reference implementation: `docs/SAFE_IMAGE_REUSABLE_COMPONENT.md`.
+- Use the shared `SafeImage` component for native image loading, a skeleton, and fallback image handling.
+- Reference implementation: [`safe-image.tsx`](../frontend/src/components/ui/safe-image.tsx).
 
 ---
 
@@ -258,6 +258,6 @@ What to watch:
 - [ ] ISR/revalidate set for server routes (if applicable)
 - [ ] Expensive routes fetch only required data
 - [ ] Media usage reviewed (sizes/priority/transform behavior)
-- [ ] Safe image fallback pattern applied where needed (`docs/SAFE_IMAGE_REUSABLE_COMPONENT.md`)
+- [ ] Safe image fallback applied where needed ([`safe-image.tsx`](../frontend/src/components/ui/safe-image.tsx))
 - [ ] API responses minimized (no unnecessary fields, no duplicate calls)
 - [ ] T+15m and T+1h observability checks completed after deploy
