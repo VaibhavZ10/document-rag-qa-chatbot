@@ -1,0 +1,33 @@
+# POST /upload
+# Purpose: Upload a PDF and build the session FAISS index.
+# Frontend caller: frontend/src/hooks/use-pdf-upload.ts -> frontend/src/lib/api.ts
+# Authorization: None (no bearer token).
+# Session: UUID v4 required; reuse the SAME value for upload and both ask requests.
+# Replace the absolute file path below with a real PDF containing text.
+# Body: multipart file field named "file" (not JSON). Default size limit: 50 MiB.
+# A successful upload replaces this session's existing index.
+# If using Postman, select Body > form-data > file (File) and let Postman set the boundary.
+
+@base_url = http://127.0.0.1:8000
+@session_id = 11111111-2222-4333-8444-555555555555
+
+# Expected response (illustrative mock, not a recorded result):
+# HTTP 200
+# {
+#   "message": "Successfully processed 'sample.pdf'",
+#   "chunks_created": 12,
+#   "file_name": "sample.pdf"
+# }
+
+### POST /upload
+POST {{base_url}}/upload
+Accept: application/json
+X-Chat-Session-Id: {{session_id}}
+Content-Type: multipart/form-data; boundary=DocumentRagBoundary
+
+--DocumentRagBoundary
+Content-Disposition: form-data; name="file"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< /absolute/path/to/your/sample.pdf
+--DocumentRagBoundary--

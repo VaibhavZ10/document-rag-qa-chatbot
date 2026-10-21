@@ -1,0 +1,20 @@
+# GET /models
+# Purpose: List configured models for the model selector.
+# Frontend caller: frontend/src/components/chat/model-selector.tsx
+# Authorization: None (no bearer token).
+# No request body or session header. Actual model IDs depend on backend configuration.
+
+@base_url = http://127.0.0.1:8000
+
+# Expected response (illustrative mock, not a recorded result):
+# HTTP 200
+# {
+#   "models": [
+#     {"id": "example-model-id", "name": "Example model", "provider": "example-provider", "is_default": true}
+#   ],
+#   "default_model": "example-model-id"
+# }
+
+### GET /models
+GET {{base_url}}/models
+Accept: application/json
