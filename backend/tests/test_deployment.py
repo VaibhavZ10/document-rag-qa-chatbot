@@ -55,11 +55,11 @@ class DeploymentTests(unittest.TestCase):
             _env_file=None,
             google_api_key="test-placeholder",
             enabled_providers="gemini",
-            allowed_chat_models="gemini-2.5-flash-lite",
+            allowed_chat_models="gemini-3.5-flash-lite",
             allowed_embedding_models="gemini-embedding-001",
             local_embeddings_enabled=False,
             default_provider="gemini",
-            default_model="gemini-2.5-flash-lite",
+            default_model="gemini-3.5-flash-lite",
             **kw,
         )
 
@@ -74,10 +74,14 @@ class DeploymentTests(unittest.TestCase):
             llm = LLMService()
             self.assertEqual(
                 [(p.name, m) for p, m in llm._llm_attempt_sequence("gpt-4o")],
-                [("gemini", "gemini-2.5-flash-lite")],
+                [("gemini", "gemini-3.5-flash-lite")],
             )
             self.assertEqual(
-                [m["id"] for m in llm.get_available_models()], ["gemini-2.5-flash-lite"]
+                [(p.name, m) for p, m in llm._llm_attempt_sequence("gemini-2.5-flash-lite")],
+                [("gemini", "gemini-3.5-flash-lite")],
+            )
+            self.assertEqual(
+                [m["id"] for m in llm.get_available_models()], ["gemini-3.5-flash-lite"]
             )
             self.assertEqual(
                 [(p.name, m) for p, m in get_embedding_fallback_chain()],
@@ -178,7 +182,7 @@ class DeploymentTests(unittest.TestCase):
                     "_generate_with_failover",
                     return_value=(
                         "The project name is Document RAG Chatbot.",
-                        "gemini-2.5-flash-lite",
+                        "gemini-3.5-flash-lite",
                     ),
                 )
             )
