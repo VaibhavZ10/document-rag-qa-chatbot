@@ -69,7 +69,9 @@ export const BREAKPOINTS = {
  * Maximum file size for PDF uploads (in bytes)
  * Default: 50MB
  */
-export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const configuredMaxSize = Number(import.meta.env.VITE_MAX_FILE_SIZE_MB);
+export const MAX_FILE_SIZE =
+  (Number.isFinite(configuredMaxSize) && configuredMaxSize > 0 ? configuredMaxSize : 50) * 1024 * 1024;
 
 /**
  * Supported file types for upload

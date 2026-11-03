@@ -47,6 +47,10 @@ FAISS stores and searches the resulting vectors; it does not generate embeddings
 ## Current limitations
 
 - Generation catches exceptions and advances through the sequence; it does not implement detailed failure classification or a provider-wide rate-limit circuit breaker.
-- Streaming failover after partial output can append text from a different attempt without resetting the earlier text.
+- Streaming retries another model only before any text has been emitted. A failure after partial output ends the stream with an error so answers from separate attempts cannot mix.
 - Persisted indexes do not record enough embedding-model identity information to guarantee compatible restoration.
 - Provider catalogs and credentials must be maintained separately from application deployment. Configured models can become unavailable.
+
+## Render deployment profile
+
+`ENABLED_PROVIDERS`, `ALLOWED_CHAT_MODELS`, and `ALLOWED_EMBEDDING_MODELS` are optional comma-separated allowlists. Empty lists retain the existing provider catalog. The Render Blueprint restricts requests to Gemini, `gemini-2.5-flash-lite`, and `gemini-embedding-001`. `LOCAL_EMBEDDINGS_ENABLED=false` disables both local fallback and the Hugging Face CPU embedding path. These settings restrict routing; API account billing still determines whether usage costs money. See [deployment instructions](VERCEL_RENDER_DEPLOYMENT.md).

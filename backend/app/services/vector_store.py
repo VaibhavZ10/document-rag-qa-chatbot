@@ -82,11 +82,15 @@ class VectorStoreService:
 
     def _make_local_cpu_embeddings(self, model: str) -> Embeddings:
         """Runs MiniLM (etc.) on CPU via sentence-transformers — no cloud API."""
+        if not self.settings.local_embeddings_enabled:
+            raise RuntimeError("Local embeddings are disabled for this deployment.")
         mk: dict[str, Any] = {"device": "cpu"}
         return HuggingFaceEmbeddings(model_name=model, model_kwargs=mk)
 
     def _make_embeddings(self, provider: AIProvider, model: str) -> Embeddings:
         if provider.name == "huggingface":
+            if not self.settings.local_embeddings_enabled:
+                raise RuntimeError("Local embeddings are disabled for this deployment.")
             key = self._resolve_api_key(provider)
             mk: dict[str, Any] = {"device": "cpu"}
             if key:
@@ -161,20 +165,21 @@ class VectorStoreService:
                     exc,
                 )
 
-        try:
-            emb = self._make_local_cpu_embeddings(
-                "sentence-transformers/all-MiniLM-L6-v2"
-            )
-            self.vectorstore = FAISS.load_local(
-                path,
-                emb,
-                allow_dangerous_deserialization=True,
-            )
-            self.embeddings = emb
-            logger.info("Loaded persisted FAISS index using local CPU embeddings")
-            return
-        except Exception as exc:
-            logger.debug("Local embedding load failed: %s", exc)
+        if self.settings.local_embeddings_enabled:
+            try:
+                emb = self._make_local_cpu_embeddings(
+                    "sentence-transformers/all-MiniLM-L6-v2"
+                )
+                self.vectorstore = FAISS.load_local(
+                    path,
+                    emb,
+                    allow_dangerous_deserialization=True,
+                )
+                self.embeddings = emb
+                logger.info("Loaded persisted FAISS index using local CPU embeddings")
+                return
+            except Exception as exc:
+                logger.debug("Local embedding load failed: %s", exc)
 
         logger.warning(
             "Could not load persisted FAISS index from %s (last error: %s)",
@@ -229,18 +234,19 @@ class VectorStoreService:
                     exc_info=logger.isEnabledFor(logging.DEBUG),
                 )
 
-        try:
-            emb = self._make_local_cpu_embeddings(
-                "sentence-transformers/all-MiniLM-L6-v2"
-            )
-            self.vectorstore = FAISS.from_documents(documents, emb)
-            self.embeddings = emb
-            self.save_to_disk()
-            logger.info("Vector index built with local CPU embeddings (MiniLM)")
-            return len(documents)
-        except Exception as exc:
-            last_error = exc
-            logger.warning("Local CPU embedding fallback failed: %s", exc)
+        if self.settings.local_embeddings_enabled:
+            try:
+                emb = self._make_local_cpu_embeddings(
+                    "sentence-transformers/all-MiniLM-L6-v2"
+                )
+                self.vectorstore = FAISS.from_documents(documents, emb)
+                self.embeddings = emb
+                self.save_to_disk()
+                logger.info("Vector index built with local CPU embeddings (MiniLM)")
+                return len(documents)
+            except Exception as exc:
+                last_error = exc
+                logger.warning("Local CPU embedding fallback failed: %s", exc)
 
         err = last_error
         detail = f"{type(err).__name__}: {err!r}" if err else "unknown"

@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: document-rag-qa-api
+    runtime: docker
+    plan: free
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DEFAULT_PROVIDER
+        value: gemini
+      - key: DEFAULT_MODEL
+        value: gemini-2.5-flash-lite
+      - key: ENABLED_PROVIDERS
+        value: gemini
+      - key: ALLOWED_CHAT_MODELS
+        value: gemini-2.5-flash-lite
+      - key: ALLOWED_EMBEDDING_MODELS
+        value: gemini-embedding-001
+      - key: LOCAL_EMBEDDINGS_ENABLED
+        value: "false"
+      - key: EMBEDDING_OPENAI_DIRECT
+        value: "false"
+      - key: MAX_VECTOR_SESSIONS
+        value: "4"
+      - key: MAX_FILE_SIZE
+        value: "5242880"
+      - key: RATE_LIMIT_UPLOAD_PER_MINUTE
+        value: "2"
+      - key: RATE_LIMIT_ASK_PER_MINUTE
+        value: "10"
+      - key: FAISS_SESSION_MAX_AGE_DAYS
+        value: "1"
