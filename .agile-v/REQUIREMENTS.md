@@ -39,3 +39,7 @@ Status: `baseline` = already expected of current system; `proposed` = remediatio
 - REQ-0018 (2026-10-13): Simplify header, footer, About page, and metadata to focus on the application. Done; validation recorded in VALIDATION_SUMMARY.md.
 
 - REQ-0019 (2026-10-13): Header title displays DRC below 480px and the full application name at 480px and above. Accessible home-link label remains the full name. Done.
+
+## Deployment — 2026-11-03
+
+- REQ-0020: Prepare Vercel Hobby and Render Free deployment with a remote-embedding-only image, explicit provider/model restrictions, bounded upload reads, matching upload limits, and validated SSE framing. Staging and committing the prepared release are authorized; the user handles pushing and merging. API keys are entered in hosting secrets. Local checks completed; hosted acceptance pending.

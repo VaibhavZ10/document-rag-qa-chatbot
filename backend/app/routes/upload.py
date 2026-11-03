@@ -100,7 +100,7 @@ async def upload_pdf(
     # Check file size
     settings = get_settings()
     # Read entire upload once; downstream processor expects bytes.
-    contents = await file.read()
+    contents = await file.read(settings.max_file_size + 1)
 
     if len(contents) > settings.max_file_size:
         raise HTTPException(

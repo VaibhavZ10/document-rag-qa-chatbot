@@ -1,3 +1,4 @@
+import { createSSEParser } from "./sse";
 /**
  * API Client Module
  *
@@ -142,43 +143,30 @@ export function streamQuestion(
       // support custom events (status/token/done/error) in one place.
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        let eventName = "";
-        for (const line of lines) {
-          if (line.startsWith("event: ")) {
-            eventName = line.slice(7).trim();
-          } else if (line.startsWith("data: ")) {
-            const raw = line.slice(6);
-            try {
-              const data = JSON.parse(raw);
-              switch (eventName) {
-                case "token":
-                  callbacks.onToken(data.content ?? "");
-                  break;
-                case "done":
-                  callbacks.onDone(data);
-                  break;
-                case "error":
-                  callbacks.onError(data.message ?? "Unknown error");
-                  break;
-                case "status":
-                  callbacks.onStatus?.(data.stage, data.message);
-                  break;
-              }
-            } catch {
-              /* skip malformed JSON */
-            }
-          }
+      let terminal = false;
+      const parse = createSSEParser((event, raw) => {
+        if (terminal) return;
+        const data = JSON.parse(raw);
+        switch (event) {
+          case "token": callbacks.onToken(data.content ?? ""); break;
+          case "done": terminal = true; callbacks.onDone(data); break;
+          case "error": terminal = true; callbacks.onError(data.message ?? "Unknown error"); break;
+          case "status": callbacks.onStatus?.(data.stage, data.message); break;
         }
+      });
+      try {
+        while (!terminal) {
+          const { value, done } = await reader.read();
+          if (done) {
+            parse(decoder.decode());
+            break;
+          }
+          parse(decoder.decode(value, { stream: true }));
+        }
+        if (!terminal) callbacks.onError("Answer stream interrupted. Please retry your question.");
+      } finally {
+        await reader.cancel().catch(() => undefined);
+        reader.releaseLock();
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {

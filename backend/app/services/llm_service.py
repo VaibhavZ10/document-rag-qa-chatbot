@@ -126,7 +126,11 @@ Answer: """
         seq: list[tuple[AIProvider, str]] = []
 
         def add(p: AIProvider, mid: str) -> None:
-            if not provider_has_credentials(p) or mid not in p.models:
+            if (
+                not provider_has_credentials(p)
+                or mid not in p.models
+                or not self.settings.permits_chat_model(mid)
+            ):
                 return
             key = (p.name, mid)
             if key in seen:
@@ -229,12 +233,14 @@ Answer: """
         payload = {"context": context, "question": question}
 
         for provider, model_id in self._llm_attempt_sequence(model or self.model):
+            emitted = False
             try:
                 llm = self._build_llm(provider, model_id)
                 chain = prompt | llm | StrOutputParser()
                 async for chunk in chain.astream(payload):
                     text = chunk if isinstance(chunk, str) else str(chunk)
                     if text:
+                        emitted = True
                         yield {
                             "type": "token",
                             "content": text,
@@ -244,6 +250,8 @@ Answer: """
                 yield {"type": "complete", "model_used": model_id}
                 return
             except Exception as exc:
+                if emitted:
+                    raise RuntimeError("Answer stream interrupted. Please retry your question.") from exc
                 logger.warning(
                     "LLM stream %s/%s failed: %s", provider.name, model_id, exc
                 )
@@ -276,6 +284,8 @@ Answer: """
         for provider in AI_PROVIDERS.values():
             if provider_has_credentials(provider):
                 for model_id in provider.models:
+                    if not settings.permits_chat_model(model_id):
+                        continue
                     models.append({
                         "id": model_id,
                         "name": model_id.split("/")[-1].replace("-", " ").title(),

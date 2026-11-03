@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=10000 \
+    LOCAL_EMBEDDINGS_ENABLED=false OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+WORKDIR /app
+COPY requirements-render.txt .
+RUN pip install --no-cache-dir -r requirements-render.txt
+COPY app ./app
+RUN groupadd --system --gid 10001 appgroup \
+    && useradd --system --uid 10001 --gid appgroup appuser \
+    && mkdir -p faiss_index/sessions \
+    && chown -R appuser:appgroup /app
+USER appuser
+EXPOSE 10000
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT} --workers 1"]

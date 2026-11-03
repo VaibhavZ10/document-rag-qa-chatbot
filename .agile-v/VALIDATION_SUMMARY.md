@@ -85,3 +85,11 @@
 - Verified that the seven selected documents are absent and the project plan is byte-for-byte unchanged.
 - Scanned retained project Markdown for references to the deleted document names; none remain.
 - Verified the replacement image-component link resolves. No application tests were needed for these documentation changes.
+
+## REQ-0020 — Vercel/Render preparation (2026-11-03)
+
+- Isolated Python 3.12 environment, without project secrets: compileall, Ruff, Mypy (30 modules), and six backend unittest cases PASS.
+- Frontend SSE parser regression tests: PASS, including all split points and CRLF/multiline frames. Node 22.23.4 TypeScript/Vite production build and ESLint: PASS.
+- Render Blueprint validates against Render's published JSON schema. Runtime pins match installed distributions; PyTorch and sentence-transformers excluded.
+- Local macOS health/index/search smoke: 100 chunks, mocked 3072-dimensional embeddings, approximately 135 MiB peak RSS. This does not establish Linux/concurrent/live-provider capacity.
+- Linux Docker build blocked because Docker daemon was not running. Hosted upload/answer, real Gemini quota/billing, cold-start and browser checks remain pending.

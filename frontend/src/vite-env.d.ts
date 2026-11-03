@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_MAX_FILE_SIZE_MB?: string;
   /** Backend origin (Coolify). Dev default: http://localhost:8000. Optional: /api for Vite proxy. */
   readonly VITE_API_BASE_URL: string;
   /** Where `npm run dev` proxies `/api/*` (default http://127.0.0.1:8000). */

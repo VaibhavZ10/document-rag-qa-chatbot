@@ -177,6 +177,27 @@ class Settings(BaseSettings):
     # api.openai.com as an embedding fallback after OpenRouter.
     embedding_openai_direct: bool = Field(default=False)
 
+    # Optional deployment allowlists; empty values retain the full local catalog.
+    enabled_providers: str = ""
+    allowed_chat_models: str = ""
+    allowed_embedding_models: str = ""
+    local_embeddings_enabled: bool = True
+
+    def permits_provider(self, name: str) -> bool:
+        return not self.enabled_providers.strip() or name in {
+            x.strip() for x in self.enabled_providers.split(",")
+        }
+
+    def permits_chat_model(self, model: str) -> bool:
+        return not self.allowed_chat_models.strip() or model in {
+            x.strip() for x in self.allowed_chat_models.split(",")
+        }
+
+    def permits_embedding_model(self, model: str) -> bool:
+        return not self.allowed_embedding_models.strip() or model in {
+            x.strip() for x in self.allowed_embedding_models.split(",")
+        }
+
     # Default AI settings
     default_model: str = "openai/gpt-oss-20b:free"
     default_provider: str = "openrouter"
@@ -232,6 +253,8 @@ def get_settings() -> Settings:
 def provider_has_credentials(provider: AIProvider) -> bool:
     """True if LLM calls can authenticate (env + pydantic Settings)."""
     settings = get_settings()
+    if not settings.permits_provider(provider.name):
+        return False
     if provider.name == "openrouter":
         return bool(provider.api_key or settings.openrouter_api_key)
     if provider.name == "openai":
@@ -296,6 +319,10 @@ def get_embedding_fallback_chain() -> list[tuple[AIProvider, str]]:
     settings = get_settings()
 
     def has_embedding_key(provider: AIProvider) -> bool:
+        if not settings.permits_provider(provider.name):
+            return False
+        if provider.name == "huggingface" and not settings.local_embeddings_enabled:
+            return False
         if provider.name == "openrouter":
             return bool(provider.api_key or settings.openrouter_api_key)
         if provider.name == "openai":
@@ -316,7 +343,7 @@ def get_embedding_fallback_chain() -> list[tuple[AIProvider, str]]:
         if provider is None or not has_embedding_key(provider):
             return
         model = provider.embedding_model
-        if not model:
+        if not model or not settings.permits_embedding_model(model):
             return
         sig = (provider.base_url, model)
         if sig in seen:
@@ -333,7 +360,7 @@ def get_embedding_fallback_chain() -> list[tuple[AIProvider, str]]:
     if gem and has_embedding_key(gem):
         m2 = "gemini-embedding-2-preview"
         sig = (gem.base_url, m2)
-        if sig not in seen:
+        if sig not in seen and settings.permits_embedding_model(m2):
             seen.add(sig)
             chain.append((gem, m2))
 

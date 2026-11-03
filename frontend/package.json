@@ -9,7 +9,8 @@
     "lint": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -45,5 +46,8 @@
     "typescript": "^5.4.2",
     "typescript-eslint": "^8.58.1",
     "vite": "^8.0.9"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
