@@ -53,4 +53,4 @@ FAISS stores and searches the resulting vectors; it does not generate embeddings
 
 ## Render deployment profile
 
-`ENABLED_PROVIDERS`, `ALLOWED_CHAT_MODELS`, and `ALLOWED_EMBEDDING_MODELS` are optional comma-separated allowlists. Empty lists retain the existing provider catalog. The Render Blueprint restricts requests to Gemini, `gemini-2.5-flash-lite`, and `gemini-embedding-001`. `LOCAL_EMBEDDINGS_ENABLED=false` disables both local fallback and the Hugging Face CPU embedding path. These settings restrict routing; API account billing still determines whether usage costs money. See [deployment instructions](VERCEL_RENDER_DEPLOYMENT.md).
+`ENABLED_PROVIDERS`, `ALLOWED_CHAT_MODELS`, and `ALLOWED_EMBEDDING_MODELS` are optional comma-separated allowlists. Empty lists retain the existing provider catalog. The Render Blueprint restricts requests to Gemini, `gemini-3.5-flash-lite`, and `gemini-embedding-001`. `LOCAL_EMBEDDINGS_ENABLED=false` disables both local fallback and the Hugging Face CPU embedding path. These settings restrict routing; API account billing still determines whether usage costs money. See [deployment instructions](VERCEL_RENDER_DEPLOYMENT.md).

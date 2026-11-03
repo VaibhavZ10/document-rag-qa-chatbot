@@ -4,7 +4,7 @@
 
 - Frontend: Vercel Hobby, Vite, Node 22.x, root directory `frontend`.
 - Backend: Render Free Docker web service, `backend/Dockerfile.render`, Python 3.12, one Uvicorn worker.
-- Chat: `gemini-2.5-flash-lite`. Embeddings: `gemini-embedding-001`.
+- Chat: `gemini-3.5-flash-lite`. Embeddings: `gemini-embedding-001`.
 - The Render profile permits only these models and Gemini. It disables local embedding models and excludes PyTorch/sentence-transformers from the image.
 - Upload limit: 5 MiB; at most four cached vector sessions; per-IP limits: two uploads and ten questions per minute. These controls do not guarantee capacity under concurrent traffic or highly compressed PDFs.
 - The existing `backend/Dockerfile` and `requirements.txt` remain available for installations that need local embedding fallback.
@@ -105,4 +105,6 @@ Local validation uses an isolated repository copy without real API keys. Backend
 
 A macOS smoke run with 100 chunks and mocked 3072-dimensional embeddings peaked at approximately 135 MiB RSS and did not load PyTorch. This is not a concurrent-load or live-provider benchmark.
 
-Docker is installed but its daemon was not running during preparation. The Linux image build, live Gemini calls, and hosted end-to-end checks remain required on Render/Vercel.
+Render successfully built the Linux image and deployed commit `38a5289` on 2026-11-03. Public health, model catalog, CORS preflight and synthetic PDF upload/embedding passed. Chat returned a provider 404 for `gemini-2.5-flash-lite`. Google's [model availability documentation](https://firebase.google.com/docs/ai-logic/models?api=dev) limits that model to previously active projects. This release switches the deployment allowlist and default to `gemini-3.5-flash-lite`, which has a [standard free tier](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite). The model change still requires publishing and live answer/stream validation.
+
+The Render service is `https://document-rag-qa-api.onrender.com`. The assigned Vercel domain is `https://document-rag-qa-chatbot.vercel.app`; production `VITE_API_BASE_URL` is set to the Render origin. Vercel's initial deployment completed successfully; the home page and direct `/chat` route render, and the upload UI shows the configured 5 MiB limit. Neither a successful upload nor a healthy process establishes complete application readiness.

@@ -119,6 +119,7 @@ AI_PROVIDERS: dict[str, AIProvider] = {
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         api_key_env="GOOGLE_API_KEY",
         models=[
+            "gemini-3.5-flash-lite",
             "gemini-2.5-flash",
             "gemini-2.5-flash-lite",
             "gemini-flash-latest",

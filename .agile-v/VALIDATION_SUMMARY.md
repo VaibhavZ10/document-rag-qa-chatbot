@@ -93,3 +93,10 @@
 - Render Blueprint validates against Render's published JSON schema. Runtime pins match installed distributions; PyTorch and sentence-transformers excluded.
 - Local macOS health/index/search smoke: 100 chunks, mocked 3072-dimensional embeddings, approximately 135 MiB peak RSS. This does not establish Linux/concurrent/live-provider capacity.
 - Linux Docker build blocked because Docker daemon was not running. Hosted upload/answer, real Gemini quota/billing, cold-start and browser checks remain pending.
+
+## Hosted deployment checks and model availability — 2026-11-03
+
+- Render Free Linux Docker build and startup succeeded for `38a5289`. Public `/health`, `/models`, CORS preflight for the assigned Vercel origin, and upload with real Gemini embeddings passed.
+- `/ask` failed with provider HTTP 404 for `gemini-2.5-flash-lite`. Google limits that model to previously active projects. Prepared `gemini-3.5-flash-lite` as the deployment default/allowlist and added it to the provider catalog; standard free-tier availability verified in Google pricing.
+- Live answers and SSE for the replacement model are pending publication. Vercel production variables are saved and the initial production deployment succeeded. The home page and direct `/chat` route render; the upload UI shows 5 MB.
+- Replacement-model configuration: isolated Python 3.12 compileall, Ruff, Mypy (30 modules), and all six backend tests PASS. Regression coverage confirms an explicit request for the older model routes only to the permitted replacement.
